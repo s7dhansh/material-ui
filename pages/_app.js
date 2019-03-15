@@ -10,15 +10,40 @@ import findPages from /* preval */ 'docs/src/modules/utils/findPages';
 import { loadCSS } from 'fg-loadcss/src/loadCSS';
 import PageContext from 'docs/src/modules/components/PageContext';
 import getPageContext from 'docs/src/modules/styles/getPageContext';
+import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
+import loadScript from 'docs/src/modules/utils/loadScript';
 
-if (process.browser) {
+let dependenciesLoaded = false;
+
+function loadDependencies() {
+  if (dependenciesLoaded) {
+    return;
+  }
+
+  dependenciesLoaded = true;
+
   loadCSS(
     'https://fonts.googleapis.com/icon?family=Material+Icons',
     document.querySelector('#insertion-point-jss'),
   );
-  loadCSS(
-    'https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.css',
-    document.querySelector('#insertion-point-jss'),
+  loadScript('https://www.google-analytics.com/analytics.js', document.querySelector('head'));
+}
+
+if (process.browser) {
+  // eslint-disable-next-line no-console
+  console.log(
+    `%c
+
+███╗   ███╗ █████╗ ████████╗███████╗██████╗ ██╗ █████╗ ██╗      ██╗   ██╗██╗
+████╗ ████║██╔══██╗╚══██╔══╝██╔════╝██╔══██╗██║██╔══██╗██║      ██║   ██║██║
+██╔████╔██║███████║   ██║   █████╗  ██████╔╝██║███████║██║█████╗██║   ██║██║
+██║╚██╔╝██║██╔══██║   ██║   ██╔══╝  ██╔══██╗██║██╔══██║██║╚════╝██║   ██║██║
+██║ ╚═╝ ██║██║  ██║   ██║   ███████╗██║  ██║██║██║  ██║███████╗ ╚██████╔╝██║
+╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚══════╝  ╚═════╝ ╚═╝
+
+Tip: you can access the \`theme\` object directly in the console.
+`,
+    'font-family:monospace;color:#1976d2;font-size:12px;',
   );
 }
 
@@ -70,6 +95,9 @@ const pages = [
         pathname: '/style/typography',
       },
       {
+        pathname: '/style/links',
+      },
+      {
         pathname: '/style/css-baseline',
         title: 'CSS Baseline',
       },
@@ -86,6 +114,10 @@ const pages = [
       },
       {
         pathname: '/layout/breakpoints',
+      },
+      {
+        pathname: '/layout/use-media-query',
+        title: 'useMediaQuery',
       },
       {
         pathname: '/layout/hidden',
@@ -117,6 +149,10 @@ const pages = [
       {
         pathname: '/utils/click-away-listener',
       },
+      {
+        pathname: '/utils/box',
+        title: 'Box (unstable)',
+      },
     ],
   },
   {
@@ -139,6 +175,46 @@ const pages = [
       },
       {
         pathname: '/css-in-js/api',
+        title: 'API',
+      },
+    ],
+  },
+  {
+    pathname: '/system',
+    title: 'System (alpha)',
+    children: [
+      {
+        pathname: '/system/basics',
+      },
+      {
+        pathname: '/system/borders',
+      },
+      {
+        pathname: '/system/display',
+      },
+      {
+        pathname: '/system/flexbox',
+      },
+      {
+        pathname: '/system/palette',
+      },
+      {
+        pathname: '/system/positions',
+      },
+      {
+        pathname: '/system/shadows',
+      },
+      {
+        pathname: '/system/sizing',
+      },
+      {
+        pathname: '/system/spacing',
+      },
+      {
+        pathname: '/system/typography',
+      },
+      {
+        pathname: '/system/api',
         title: 'API',
       },
     ],
@@ -211,6 +287,9 @@ const pages = [
       {
         pathname: '/lab/about',
         title: 'About The Lab',
+      },
+      {
+        pathname: '/lab/breadcrumbs',
       },
       {
         pathname: '/lab/slider',
@@ -300,6 +379,10 @@ class MyApp extends App {
     this.pageContext = getPageContext();
   }
 
+  componentDidMount() {
+    loadDependencies();
+  }
+
   render() {
     const { Component, pageProps, router } = this.props;
 
@@ -319,13 +402,14 @@ class MyApp extends App {
 
     return (
       <Container>
-        <PageContext.Provider value={{ activePage, pages }}>
-          <Provider store={this.redux}>
+        <Provider store={this.redux}>
+          <PageContext.Provider value={{ activePage, pages }}>
             <AppWrapper pageContext={this.pageContext}>
               <Component pageContext={this.pageContext} {...pageProps} />
             </AppWrapper>
-          </Provider>
-        </PageContext.Provider>
+          </PageContext.Provider>
+        </Provider>
+        <GoogleAnalytics key={router.route} />
       </Container>
     );
   }

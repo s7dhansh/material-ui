@@ -81,6 +81,8 @@ function buildDocs(options) {
     return;
   }
 
+  const spread = !src.match(/ = exactProp\(/);
+
   // eslint-disable-next-line global-require, import/no-dynamic-require
   const component = require(componentObject.filename);
   const name = path.parse(componentObject.filename).name;
@@ -101,7 +103,10 @@ function buildDocs(options) {
     // Exception for Select where the classes are imported from NativeSelect
     if (name === 'Select') {
       styleSrc = readFileSync(
-        componentObject.filename.replace('Select/Select', 'NativeSelect/NativeSelect'),
+        componentObject.filename.replace(
+          `Select${path.sep}Select`,
+          `NativeSelect${path.sep}NativeSelect`,
+        ),
         'utf8',
       );
     }
@@ -113,6 +118,7 @@ function buildDocs(options) {
     const styleRegexp = /\/\* (.*) \*\/[\r\n]\s*(\w*)/g;
     // Extract the styles section from the source
     const stylesSrc = stylesRegexp.exec(styleSrc);
+
     if (stylesSrc) {
       // Extract individual classes and descriptions
       stylesSrc[0].replace(styleRegexp, (match, desc, key) => {
@@ -133,6 +139,7 @@ function buildDocs(options) {
   reactAPI.styles = styles;
   reactAPI.pagesMarkdown = pagesMarkdown;
   reactAPI.src = src;
+  reactAPI.spread = spread;
 
   // if (reactAPI.name !== 'TableCell') {
   //   return;

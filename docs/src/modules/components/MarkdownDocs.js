@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import warning from 'warning';
+import { connect } from 'react-redux';
+import compose from 'recompose/compose';
 import { withStyles } from '@material-ui/core/styles';
 import Portal from '@material-ui/core/Portal';
 import MarkdownElement from '@material-ui/docs/MarkdownElement';
@@ -38,7 +40,58 @@ const styles = theme => ({
 const SOURCE_CODE_ROOT_URL = 'https://github.com/mui-org/material-ui/blob/master';
 
 function MarkdownDocs(props) {
-  const { classes, demos, disableAd, markdown, markdownLocation: markdownLocationProp } = props;
+  const {
+    classes,
+    disableAd,
+    markdown: markdownProp,
+    markdownLocation: markdownLocationProp,
+    req,
+    reqPrefix,
+    reqSource,
+    userLanguage,
+  } = props;
+
+  let demos;
+  let markdown = markdownProp;
+
+  if (req) {
+    demos = {};
+    const markdowns = {};
+    const sourceFiles = reqSource.keys();
+    req.keys().forEach(filename => {
+      if (filename.indexOf('.md') !== -1) {
+        const match = filename.match(/-([a-z]{2})\.md$/);
+
+        if (match && ['en', 'zh'].indexOf(match[1]) !== -1) {
+          markdowns[match[1]] = req(filename);
+        } else {
+          markdowns.en = req(filename);
+        }
+      } else {
+        const demoName = `${reqPrefix}/${filename.replace(/.\/|.hooks/g, '')}`;
+        const isHooks = filename.indexOf('.hooks.js') !== -1;
+        const jsType = isHooks ? 'jsHooks' : 'js';
+        const rawType = isHooks ? 'rawHooks' : 'raw';
+
+        const tsFilename = !isHooks
+          ? sourceFiles.find(sourceFileName => {
+              const isTSSourceFile = /\.tsx$/.test(sourceFileName);
+              const isTSVersionOfFile = sourceFileName.replace(/\.tsx$/, '.js') === filename;
+              return isTSSourceFile && isTSVersionOfFile;
+            })
+          : undefined;
+
+        demos[demoName] = {
+          ...demos[demoName],
+          [jsType]: req(filename).default,
+          [rawType]: reqSource(filename),
+          rawTS: tsFilename ? reqSource(tsFilename) : undefined,
+        };
+      }
+    });
+    markdown = markdowns[userLanguage] || markdowns.en;
+  }
+
   const headers = getHeaders(markdown);
 
   return (
@@ -63,7 +116,7 @@ function MarkdownDocs(props) {
               />
             </div>
             {contents.map(content => {
-              if (demoRegexp.test(content) && demos) {
+              if (demos && demoRegexp.test(content)) {
                 let demoOptions;
                 try {
                   demoOptions = JSON.parse(`{${content}}`);
@@ -73,10 +126,30 @@ function MarkdownDocs(props) {
                 }
 
                 const name = demoOptions.demo;
-                warning(
-                  demos && demos[name],
-                  `Missing demo: ${name}. You can use one of the following:\n${Object.keys(demos)}`,
-                );
+                if (!demos || !demos[name]) {
+                  const errorMessage = [
+                    `Missing demo: ${name}. You can use one of the following:`,
+                    Object.keys(demos),
+                  ].join('\n');
+
+                  if (userLanguage === 'en') {
+                    throw new Error(errorMessage);
+                  }
+
+                  warning(false, errorMessage);
+
+                  const warnIcon = (
+                    <span role="img" aria-label="warning">
+                      ⚠️
+                    </span>
+                  );
+                  return (
+                    <div key={content}>
+                      {warnIcon} Missing demo `{name}` {warnIcon}
+                    </div>
+                  );
+                }
+
                 return (
                   <Demo
                     key={content}
@@ -100,16 +173,24 @@ function MarkdownDocs(props) {
 
 MarkdownDocs.propTypes = {
   classes: PropTypes.object.isRequired,
-  demos: PropTypes.object,
   disableAd: PropTypes.bool,
-  markdown: PropTypes.string.isRequired,
+  markdown: PropTypes.string,
   // You can define the direction location of the markdown file.
   // Otherwise, we try to determine it with an heuristic.
   markdownLocation: PropTypes.string,
+  req: PropTypes.func,
+  reqPrefix: PropTypes.string,
+  reqSource: PropTypes.func,
+  userLanguage: PropTypes.string.isRequired,
 };
 
 MarkdownDocs.defaultProps = {
   disableAd: false,
 };
 
-export default withStyles(styles)(MarkdownDocs);
+export default compose(
+  connect(state => ({
+    userLanguage: state.options.userLanguage,
+  })),
+  withStyles(styles),
+)(MarkdownDocs);

@@ -8,18 +8,28 @@ components: Modal
 <p class="description">The modal component provides a solid foundation for creating dialogs, popovers, lightboxes, or whatever else.</p>
 
 The component renders its `children` node in front of a backdrop component.
-
 The `Modal` offers a few helpful features over using just a [`Portal`](/utils/portal/)
 component and some styles:
 
 - Manages modal stacking when one-at-a-time just isn't enough.
 - Creates a backdrop, for disabling interaction below the modal.
-- It properly manages focus; moving to the modal content,
-  and keeping it there until the modal is closed.
 - It disables scrolling of the page content while open.
+- ♿️ It properly manages focus; moving to the modal content,
+  and keeping it there until the modal is closed.
 - ♿️ Adds the appropriate ARIA roles automatically.
 
-This component shares many concepts with [react-overlays](https://react-bootstrap.github.io/react-overlays/#modals).
+
+> **Terminology note**. The term "modal" is sometimes used to mean "dialog", but this is a misnomer.
+A Modal window describes parts of a UI.
+An element is considered modal if [it blocks interaction with the rest of the application](https://en.wikipedia.org/wiki/Modal_window).
+
+If you are creating a modal dialog, you probably want to use the [Dialog](/demos/dialogs/) component rather than directly using Modal.
+Modal is a lower-level construct that is leveraged by the following components:
+
+- [Dialog](/demos/dialogs/)
+- [Drawer](/demos/drawers/)
+- [Menu](/demos/menus/)
+- [Popover](/utils/popover/)
 
 ## Simple modal
 

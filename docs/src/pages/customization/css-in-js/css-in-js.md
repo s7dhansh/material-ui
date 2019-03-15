@@ -3,7 +3,7 @@
 <p class="description">You can leverage our styling solution, even if you are not using our components.</p>
 
 > ⚠️ We are working on extracting the styling solution into it's own package: [`@material-ui/styles`](/css-in-js/basics/).
-It's an experimental project (alpha version).
+It's an unstable project (alpha version).
 Hopefully, we will make it the default style implementation for the core components in Material-UI v4.
 
 Material-UI aims to provide strong foundations for building dynamic UIs.
@@ -33,7 +33,7 @@ It's a [high performance](https://github.com/cssinjs/jss/blob/master/docs/perfor
 It is about 8 kB (minified and gzipped) and is extensible via a [plugins](https://github.com/cssinjs/jss/blob/master/docs/plugins.md) API.
 
 If you end up using this styling solution in your codebase, you're going to need to *learn the API*.
-The best place to start is by looking at the features that each [plugin](http://cssinjs.org/plugins/) provides. Material-UI uses [few of them](#plugins).
+The best place to start is by looking at the features that each [plugin](https://cssinjs.org/plugins/) provides. Material-UI uses [few of them](#plugins).
 You can always add new plugins if needed with the [`JssProvider`](https://github.com/cssinjs/react-jss#custom-setup) helper.
 
 If you wish to build your own instance of `jss` **and** support *rtl* make sure you also include the [jss-rtl](https://github.com/alitaheri/jss-rtl) plugin.
@@ -44,8 +44,6 @@ Check the jss-rtl [readme](https://github.com/alitaheri/jss-rtl#simple-usage) to
 When rendering on the server, you will need to get all rendered styles as a CSS string.
 The `SheetsRegistry` class allows you to manually aggregate and stringify them.
 Read more about [Server Rendering](/guides/server-rendering/).
-
-{{"demo": "pages/customization/css-in-js/JssRegistry.js", "hideEditButton": true}}
 
 ## Sheets manager
 
@@ -73,7 +71,7 @@ They are easy to debug in development and as short as possible in production:
 - production: `.jss12`
 
 If you don't like this default behavior, you can change it.
-JSS relies on the concept of [class name generator](http://cssinjs.org/js-api/#generate-your-own-class-names).
+JSS relies on the concept of [class name generator](http://cssinjs.org/jss-api/#generate-your-own-class-names).
 
 ### Global CSS
 
@@ -101,7 +99,7 @@ The CSS injected by Material-UI to style a component has the highest specificity
 
 You might, however, also want to override these styles, for example with styled-components.
 If you are experiencing a CSS injection order issue, JSS [provides a mechanism](https://github.com/cssinjs/jss/blob/master/docs/setup.md#specify-dom-insertion-point) to handle this situation.
-By adjusting the placement of the `insertionPoint` within your HTML head you can [control the order](http://cssinjs.org/js-api/#attach-style-sheets-in-a-specific-order) that the CSS rules are applied to your components.
+By adjusting the placement of the `insertionPoint` within your HTML head you can [control the order](http://cssinjs.org/jss-api/#attach-style-sheets-in-a-specific-order) that the CSS rules are applied to your components.
 
 ### HTML comment
 
@@ -212,7 +210,7 @@ There are different use cases:
 - Providing a class name generator.
 - [Providing a Sheets registry.](/customization/css-in-js/#sheets-registry)
 - Providing a JSS instance. You might want to support [Right-to-left](/guides/right-to-left/) or changing the [CSS injection order](/customization/css-in-js/#css-injection-order).
-Read [the JSS documentation](http://cssinjs.org/js-api/) to learn more about the options available.
+Read [the JSS documentation](http://cssinjs.org/jss-api/) to learn more about the options available.
 Here is an example:
 
 ```jsx
@@ -273,7 +271,7 @@ Use the function signature if you need to have access to the theme. It's provide
   - `options.name` (*String* [optional]): The name of the style sheet. Useful for debugging.
     If the value isn't provided, it will try to fallback to the name of the component.
   - `options.flip` (*Boolean* [optional]): When set to `false`, this sheet will opt-out the `rtl` transformation. When set to `true`, the styles are inversed. When set to `null`, it follows `theme.direction`.
-  - The other keys are forwarded to the options argument of [jss.createStyleSheet([styles], [options])](http://cssinjs.org/js-api/#create-style-sheet).
+  - The other keys are forwarded to the options argument of [jss.createStyleSheet([styles], [options])](http://cssinjs.org/jss-api/#create-style-sheet).
 
 #### Returns
 
@@ -322,7 +320,7 @@ export default MyComponent
 
 ### `createGenerateClassName([options]) => class name generator`
 
-A function which returns [a class name generator function](http://cssinjs.org/js-api/#generate-your-own-class-names).
+A function which returns [a class name generator function](http://cssinjs.org/jss-api/#generate-your-own-class-names).
 
 #### Arguments
 

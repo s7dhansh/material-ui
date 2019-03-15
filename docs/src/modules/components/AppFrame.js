@@ -26,6 +26,7 @@ import Link from 'docs/src/modules/components/Link';
 import AppDrawer from 'docs/src/modules/components/AppDrawer';
 import AppSearch from 'docs/src/modules/components/AppSearch';
 import Notifications from 'docs/src/modules/components/Notifications';
+import MarkdownLinks from 'docs/src/modules/components/MarkdownLinks';
 import PageTitle from 'docs/src/modules/components/PageTitle';
 import { ACTION_TYPES } from 'docs/src/modules/constants';
 
@@ -40,6 +41,41 @@ Router.onRouteChangeComplete = () => {
 Router.onRouteChangeError = () => {
   NProgress.done();
 };
+
+const languages = [
+  {
+    code: 'en',
+    text: '🇺🇸 English',
+  },
+  {
+    code: 'zh',
+    text: '🇨🇳 中文',
+  },
+  // {
+  //   code: 'ru',
+  //   text: '🇷🇺 Русский',
+  // },
+  // {
+  //   code: 'pt',
+  //   text: '🇧🇷 Português',
+  // },
+  // {
+  //   code: 'fr',
+  //   text: '🇫🇷 Français',
+  // },
+  // {
+  //   code: 'es',
+  //   text: '🇪🇸 Español',
+  // },
+  // {
+  //   code: 'de',
+  //   text: '🇩🇪 Deutsch',
+  // },
+  // {
+  //   code: 'ja',
+  //   text: '🇯🇵 日本語',
+  // },
+];
 
 const styles = theme => ({
   root: {
@@ -101,7 +137,7 @@ class AppFrame extends React.Component {
   };
 
   handleLanguageMenuItemClick = lang => () => {
-    if (lang !== this.props.options.userLanguage) {
+    if (lang !== this.props.userLanguage) {
       document.cookie = `lang=${lang};path=/;max-age=31536000`;
       window.location.reload();
     }
@@ -130,7 +166,7 @@ class AppFrame extends React.Component {
   };
 
   render() {
-    const { children, classes, reduxTheme, options } = this.props;
+    const { children, classes, reduxTheme, userLanguage } = this.props;
     const { languageMenu } = this.state;
 
     return (
@@ -153,6 +189,8 @@ class AppFrame extends React.Component {
             <div className={classes.root}>
               <NProgressBar />
               <CssBaseline />
+              <Notifications />
+              <MarkdownLinks />
               <AppBar className={appBarClassName}>
                 <Toolbar>
                   <IconButton
@@ -188,24 +226,22 @@ class AppFrame extends React.Component {
                     open={Boolean(languageMenu)}
                     onClose={this.handleLanguageMenuClose}
                   >
-                    <MenuItem
-                      selected={options.userLanguage === 'en'}
-                      onClick={this.handleLanguageMenuItemClick('en')}
-                    >
-                      English
-                    </MenuItem>
-                    <MenuItem
-                      selected={options.userLanguage === 'zh'}
-                      onClick={this.handleLanguageMenuItemClick('zh')}
-                    >
-                      中文
-                    </MenuItem>
+                    {languages.map(language => (
+                      <MenuItem
+                        key={language.code}
+                        selected={userLanguage === language.code}
+                        onClick={this.handleLanguageMenuItemClick(language.code)}
+                      >
+                        {language.text}
+                      </MenuItem>
+                    ))}
                   </Menu>
                   <Tooltip title="Edit docs colors" enterDelay={300}>
                     <IconButton
                       color="inherit"
                       aria-label="Edit docs colors"
                       component={Link}
+                      naked
                       href="/style/color/#color-tool"
                       data-ga-event-category="AppBar"
                       data-ga-event-action="colors"
@@ -257,7 +293,6 @@ class AppFrame extends React.Component {
                   </Tooltip>
                 </Toolbar>
               </AppBar>
-              <Notifications />
               <AppDrawer
                 className={classes.drawer}
                 disablePermanent={disablePermanent}
@@ -278,14 +313,14 @@ AppFrame.propTypes = {
   children: PropTypes.node.isRequired,
   classes: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
-  options: PropTypes.object.isRequired,
   reduxTheme: PropTypes.object.isRequired,
+  userLanguage: PropTypes.string.isRequired,
 };
 
 export default compose(
   connect(state => ({
-    options: state.options,
     reduxTheme: state.theme,
+    userLanguage: state.options.userLanguage,
   })),
   withStyles(styles),
 )(AppFrame);

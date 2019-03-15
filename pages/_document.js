@@ -64,8 +64,6 @@ class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
-          {/* Global Site Tag (gtag.js) - Google Analytics */}
-          <script defer src="https://www.google-analytics.com/analytics.js" />
           <script
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{
@@ -75,7 +73,6 @@ window.ga('create','${GOOGLE_ID}','auto');
               `,
             }}
           />
-          <script defer src="https://cdn.jsdelivr.net/docsearch.js/2/docsearch.min.js" />
         </body>
       </html>
     );
@@ -116,7 +113,7 @@ MyDocument.getInitialProps = async ctx => {
   });
 
   let css;
-  // It might not be defined, it won't after an error occures.
+  // It might be undefined, e.g. after an error.
   if (pageContext) {
     css = pageContext.sheetsRegistry.toString();
     if (process.env.NODE_ENV === 'production') {

@@ -1,10 +1,12 @@
 import React from 'react';
 import { assert } from 'chai';
+import PropTypes from 'prop-types';
 import { spy, useFakeTimers } from 'sinon';
 import consoleErrorMock from 'test/utils/consoleErrorMock';
 import { createShallow, createMount, getClasses, unwrap } from '@material-ui/core/test-utils';
 import Popper from '../Popper';
 import Tooltip from './Tooltip';
+import Input from '../Input';
 import createMuiTheme from '../styles/createMuiTheme';
 
 function persist() {}
@@ -18,8 +20,9 @@ describe('<Tooltip />', () => {
   let classes;
   let clock;
   const defaultProps = {
-    title: 'Hello World',
     children: <span>Hello World</span>,
+    theme,
+    title: 'Hello World',
   };
 
   before(() => {
@@ -45,7 +48,7 @@ describe('<Tooltip />', () => {
   describe('prop: disableHoverListener', () => {
     it('should hide the native title', () => {
       const wrapper = shallow(
-        <Tooltip title="Hello World" disableHoverListener>
+        <Tooltip {...defaultProps} title="Hello World" disableHoverListener>
           <button type="submit">Hello World</button>
         </Tooltip>,
       );
@@ -68,7 +71,7 @@ describe('<Tooltip />', () => {
 
     it('should be passed down to the child as a native title', () => {
       const wrapper = shallow(
-        <Tooltip title="Hello World">
+        <Tooltip {...defaultProps} title="Hello World">
           <button type="submit">Hello World</button>
         </Tooltip>,
       );
@@ -169,13 +172,33 @@ describe('<Tooltip />', () => {
     it('should mount without any issue', () => {
       mount(<Tooltip {...defaultProps} open />);
     });
+
+    it('should handle autoFocus + onFocus forwarding', () => {
+      const AutoFocus = props => (
+        <div>
+          {props.open ? (
+            <Tooltip title="Title">
+              <Input value="value" autoFocus />
+            </Tooltip>
+          ) : null}
+        </div>
+      );
+      AutoFocus.propTypes = {
+        open: PropTypes.bool,
+      };
+
+      const wrapper = mount(<AutoFocus />);
+      wrapper.setProps({ open: true });
+      assert.strictEqual(wrapper.find(Popper).props().open, false);
+      clock.tick(0);
+      wrapper.update();
+      assert.strictEqual(wrapper.find(Popper).props().open, true);
+    });
   });
 
   describe('prop: delay', () => {
     it('should take the enterDelay into account', () => {
-      const wrapper = mount(
-        <TooltipNaked classes={{}} theme={theme} enterDelay={111} {...defaultProps} />,
-      );
+      const wrapper = mount(<TooltipNaked classes={{}} enterDelay={111} {...defaultProps} />);
       const childrenRef = wrapper.instance().childrenRef;
       childrenRef.tabIndex = 0;
       childrenRef.focus();
@@ -186,9 +209,7 @@ describe('<Tooltip />', () => {
     });
 
     it('should take the leaveDelay into account', () => {
-      const wrapper = mount(
-        <TooltipNaked classes={{}} theme={theme} leaveDelay={111} {...defaultProps} />,
-      );
+      const wrapper = mount(<TooltipNaked classes={{}} leaveDelay={111} {...defaultProps} />);
       const childrenRef = wrapper.instance().childrenRef;
       childrenRef.tabIndex = 0;
       childrenRef.focus();
@@ -215,7 +236,7 @@ describe('<Tooltip />', () => {
       it(`should be transparent for the ${name} event`, () => {
         const handler = spy();
         const wrapper = shallow(
-          <Tooltip title="Hello World">
+          <Tooltip {...defaultProps} title="Hello World">
             <button type="submit" {...{ [name]: handler }}>
               Hello World
             </button>
